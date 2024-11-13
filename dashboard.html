@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <h1 class="my-4">Real-Time Request Dashboard</h1>
+    
+    <table class="table table-bordered" id="requests-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Endpoint</th>
+                <th>Method</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req.id }}</td>
+                <td>{{ req.user }}</td>
+                <td>{{ req.endpoint }}</td>
+                <td>{{ req.method }}</td>
+                <td>{{ req.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/socket.io@4.0.0/dist/socket.io.min.js"></script>
+    <script>
+        // Connect to SocketIO
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        
+        // Listen for 'new_request' event
+        socket.on('new_request', function(data) {
+            var table = document.getElementById('requests-table').getElementsByTagName('tbody')[0];
+            
+            // Create a new row and insert data
+            var newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td>${data.id}</td>
+                <td>${data.user}</td>
+                <td>${data.endpoint}</td>
+                <td>${data.method}</td>
+                <td>${data.timestamp}</td>
+            `;
+        });
+
+        // On connection event
+        socket.on('connected', function(data) {
+            console.log(data);
+        });
+    </script>
+{% endblock %}
